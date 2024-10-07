@@ -1,0 +1,3 @@
+jwt:
+  expiryTime: 1000*60*60*24
+  secretKey: abc
