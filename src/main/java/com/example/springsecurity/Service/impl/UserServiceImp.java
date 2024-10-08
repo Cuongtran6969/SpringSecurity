@@ -1,6 +1,7 @@
 package com.example.springsecurity.Service.impl;
 
 import com.example.springsecurity.Service.UserService;
+import com.example.springsecurity.model.User;
 import com.example.springsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,5 +19,16 @@ public class UserServiceImp implements UserService {
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Override
+    public long saveUser(User user) {
+        userRepository.save(user);
+        return user.getId();
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not exist"));
     }
 }

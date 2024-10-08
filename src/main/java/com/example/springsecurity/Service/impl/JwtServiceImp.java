@@ -21,14 +21,16 @@ import java.util.function.Function;
 public class JwtServiceImp implements JwtService {
 
 //    @Value("${jwt.expiryTime}")
-    private long expiryTime = 1;
+   private long expiryTime = 1;
 
-    private long expiryDay = 14;
+   private long expiryDay = 14;
 
 //    @Value("${jwt.secretKey}")
-    private String secretkey = "803ccb9767523d85485cb85e6310e73b34929e7df240d51fb5c9606a9cd94148";
+   private String secretkey = "803ccb9767523d85485cb85e6310e73b34929e7df240d51fb5c9606a9cd94148";
 
-    private String refreshkey = "04efcb14e6e81940dde1c386ad894d63fc5428a3749185aa70b1e5b82faf8ed7";
+   private String refreshkey = "04efcb14e6e81940dde1c386ad894d63fc5428a3749185aa70b1e5b82faf8ed7";
+
+   private String resetKey = "58ed8c6ca6fe4bdfea08796a94bf9e7b35a05dcdef2d767fd7083666172c4df9";
 
    @Override
     public String generateToken(UserDetails user) {
@@ -38,6 +40,11 @@ public class JwtServiceImp implements JwtService {
     @Override
     public String generateRefreshToken(UserDetails user) {
         return generateRefreshToken(new HashMap<>(), user);
+    }
+
+    @Override
+    public String generateResetToken(UserDetails user) {
+        return generateResetToken(new HashMap<>(), user);
     }
 
     @Override
@@ -77,16 +84,30 @@ public class JwtServiceImp implements JwtService {
                 .signWith(getKey(TokenType.REFRESH_TOKEN), SignatureAlgorithm.HS256)//dinh nghia thuat toan
                 .compact();
     }
+    private String generateResetToken(Map<String, Object> claims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(claims)//thong tin bi mat khong public (ma hoa thong tin)
+                .setSubject(userDetails.getUsername())//khong trung lap
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date((System.currentTimeMillis() + 1000*60*60)))
+                .signWith(getKey(TokenType.RESET_TOKEN), SignatureAlgorithm.HS256)//dinh nghia thuat toan
+                .compact();
+    }
 
 
     private Key getKey(TokenType type) {
-        byte[] keyBytes;
-        if(TokenType.ACCESS_TOKEN.equals(type)) {
-            keyBytes = Decoders.BASE64.decode(secretkey);//ma hoa secrekey va giai ma
-        } else {
-            keyBytes = Decoders.BASE64.decode(refreshkey);//ma hoa secrekey va giai ma
+        switch (type) {
+            case ACCESS_TOKEN -> {
+                return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretkey));//ma hoa secrekey va giai ma
+            }
+            case REFRESH_TOKEN -> {
+                return Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshkey));//ma hoa secrekey va giai ma
+            }
+            case RESET_TOKEN -> {
+                return Keys.hmacShaKeyFor(Decoders.BASE64.decode(resetKey));//ma hoa secrekey va giai ma
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         }
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public <T> T extractClaims(String token, TokenType type, Function<Claims, T> claimsResolver){

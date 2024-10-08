@@ -3,6 +3,7 @@ package com.example.springsecurity.controller;
 
 import com.example.springsecurity.Service.AuthenticationService;
 import com.example.springsecurity.Service.UserService;
+import com.example.springsecurity.dto.request.ResetPasswordDTO;
 import com.example.springsecurity.dto.request.SignInRequest;
 import com.example.springsecurity.dto.response.TokenResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,9 +37,22 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpServletRequest request) {
         return new ResponseEntity<>(authenticationService.logout(request), HttpStatus.OK);
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody String email) {
+        return new ResponseEntity<>(authenticationService.forgotPassword(email), HttpStatus.OK);
+    }
 
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody String secretKey) {
+        return new ResponseEntity<>(authenticationService.resetPassword(secretKey), HttpStatus.OK);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ResetPasswordDTO secretKey) {
+        return new ResponseEntity<>(authenticationService.changePassword(secretKey), HttpStatus.OK);
+    }
 }
