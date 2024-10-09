@@ -11,6 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>SpringSecurity</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>SpringSecurity</name>
 	<description>SpringSecurity</description>
 	<url/>
